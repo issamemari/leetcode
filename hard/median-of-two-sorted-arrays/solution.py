@@ -1,17 +1,25 @@
-from itertools import count
-from typing import List, Tuple
+from typing import List
 
 
 class Solution:
 
-    def binarySearch(self, num: int, nums: List[int], begin: int, end: int) -> int:
+    def whereInCombined(self, index: int, nums1: List[int], num2: List[int], first: bool) -> int:
+        if first:
+            return index + self.binarySearch(nums1[index], num2, 0, len(num2) - 1, True)
+        return index + self.binarySearch(nums1[index], num2, 0, len(num2) - 1, False)
 
+    def binarySearch(self, num: int, nums: List[int], begin: int, end: int, return_first: bool) -> int:
         if end < begin:
             return begin
 
-        # begin and end are inclusive boundaries
         if begin == end:
             if nums[begin] == num:
+                if return_first:
+                    while begin - 1 >= 0 and nums[begin - 1] == num:
+                        begin -= 1
+                    return begin
+                while begin + 1< len(nums) and nums[begin + 1] == num:
+                    begin += 1
                 return begin
             if nums[begin] > num:
                 return begin
@@ -19,78 +27,18 @@ class Solution:
 
         mid = begin + (end - begin) // 2
         if nums[mid] == num:
-            while mid < end and nums[mid] == num:
-               mid += 1
+            if not return_first:
+                while mid + 1 < len(nums) and nums[mid + 1] == num:
+                    mid += 1
+                return mid + 1
+            while mid - 1 >= 0 and nums[mid - 1] == num:
+                mid -= 1
             return mid
         if nums[mid] > num:
-            return self.binarySearch(num, nums, begin, mid - 1)
+            return self.binarySearch(num, nums, begin, mid - 1, return_first)
         if nums[mid] < num:
-            return self.binarySearch(num, nums, mid + 1, end)
+            return self.binarySearch(num, nums, mid + 1, end, return_first)
 
-    def findMedian(self, nums1: List[int], nums2: List[int], begin: int, end: int) -> Tuple[int, float]:
-        print("===============================")
-        print(f"in findMedian, nums1: {nums1}, nums2: {nums2}, begin: {begin}, end: {end}")
-        if end < begin:
-            print("end < begin", end, begin)
-            return 0, -1
-
-        n = len(nums1)
-        m = len(nums2)
-
-        twoMedians = True
-        idxs = [(n + m) // 2 - 1, (n + m) // 2]
-        if (n + m) % 2 == 1:
-            twoMedians = False
-            idxs = [idxs[1]]
-
-        print(f"twoMedians is {twoMedians}, idxs: {idxs}")
-
-        if begin == end:
-            print("begin == end", begin, end)
-            if (begin + self.binarySearch(nums1[begin], nums2, 0, len(nums2) - 1)) in idxs:
-                print("begin + self.binarySearch(nums1[begin], nums2, 0, len(nums2) - 1) in idxs")
-                return 1, nums1[begin]
-            else:
-                print("begin + self.binarySearch(nums1[begin], nums2, 0, len(nums2) - 1) not in idxs, median not found")
-                return 0, -1
-
-        mid = begin + (end - begin) // 2
-        s = self.binarySearch(nums1[mid], nums2, 0, len(nums2) - 1)
-        countUnder = mid + s
-        print(f"countUnder: {countUnder}, mid: {mid}, nums1[mid]: {nums1[mid]}, s: {s}")
-        if countUnder in idxs:
-            print("countUnder in idxs")
-            if not twoMedians:
-                print("not twoMedians, return 1, {nums1[mid]}")
-                return 1, nums1[mid]
-
-            print("twoMedians, finding second median")
-            f1, med1 = self.findMedian(nums1, nums2, 0, mid - 1)
-            f2, med2 = self.findMedian(nums1, nums2, mid + 1, end)
-
-            if f1 == 1 and f2 == 0:
-                print("f1 == 1 and f2 == 0")
-                return 2, med1
-            if f1 == 0 and f2 == 1:
-                print("f1 == 0 and f2 == 1")
-                return 2, med2
-            if f1 == 1 and f2 == 1:
-                print("f1 == 1 and f2 == 1")
-                return 2, (med1 + med2) / 2
-
-            print(f"f1 == {f1} and f2 == {f2}")
-            return 1, nums1[mid]
-        if countUnder < idxs[0]:
-            print(f"countUnder < idxs[0], countUnder: {countUnder}, idxs[0]: {idxs[0]}")
-            return self.findMedian(nums1, nums2, mid + 1, end)
-
-        print(f"countUnder > idxs[1], countUnder: {countUnder}, idxs[0]: {idxs[1]}")
-        return self.findMedian(nums1, nums2, begin, mid - 1)
-
-    def findMedianNormal(self, nums):
-        if len(nums) % 2 == 1:
-            return nums[len(nums) // 2]
-        return (nums[len(nums) // 2] + nums[len(nums) // 2 - 1]) / 2
 
     def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
 
@@ -99,29 +47,69 @@ class Solution:
         if len(nums2) == 0:
             return self.findMedianNormal(nums1)
 
-        count, med = self.findMedian(nums1, nums2, 0, len(nums1) - 1)
-        print("AFTER FIRST FIND MEDIAN", count, med)
-        if count == 2:
-            return med
-        if count == 1:
-            count2, med2 = self.findMedian(nums2, nums1, 0, len(nums2) - 1)
-            print("A AFTER SECOND FIND MEDIAN", count2, med2)
-            if count2 == 2:
-                return med2
-            if count2 == 1:
-                return (med + med2) / 2
-            if count2 == 0:
-                return med
-        if count == 0:
-            print("PARAMETERS")
-            print(nums2, nums1, 0, len(nums2) - 1)
-            count2, med2 = self.findMedian(nums2, nums1, 0, len(nums2) - 1)
-            print("B AFTER SECOND FIND MEDIAN", count2, med2)
-            return med2
+        n = len(nums1)
+        m = len(nums2)
+
+        twoMedians = False
+        if (n + m) % 2 == 0:
+            twoMedians = True
+
+        meds = []
+        if twoMedians:
+            med1 = self.findMedian(nums1, nums2, 0, len(nums1) - 1, True, True)
+            med2 = self.findMedian(nums1, nums2, 0, len(nums1) - 1, False, True)
+            med3 = self.findMedian(nums2, nums1, 0, len(nums2) - 1, True, False)
+            med4 = self.findMedian(nums2, nums1, 0, len(nums2) - 1, False, False)
+
+            meds.extend([med1, med2, med3, med4])
+        else:
+            med1 = self.findMedian(nums1, nums2, 0, len(nums1) - 1, True, True)
+            med2 = self.findMedian(nums2, nums1, 0, len(nums2) - 1, True, False)
+            meds.extend([med1, med2])
+
+        sum = 0
+        count = 0
+        for med in set(meds):
+            if med is not None:
+                sum += med
+                count += 1
+        return sum / count
+
+    def findMedianNormal(self, nums: List[int]) -> float:
+        if len(nums) % 2 == 1:
+            return nums[len(nums) // 2]
+        return (nums[len(nums) // 2] + nums[len(nums) // 2 - 1]) / 2
+
+    def findMedian(self, nums1: List[int], nums2: List[int], begin: int, end: int, return_first: bool, one_first: bool) -> float:
+        if end < begin:
+            return None
+
+        n = len(nums1)
+        m = len(nums2)
+
+        if (n + m) % 2 == 0:
+            if return_first:
+                index = (n + m) // 2 - 1
+            else:
+                index = (n + m) // 2
+        else:
+            index = (n + m) // 2
+
+        if begin == end:
+            indexInCombined = self.whereInCombined(begin, nums1, nums2, one_first)
+            if indexInCombined == index:
+                return nums1[begin]
+            return None
+
+        mid = begin + (end - begin) // 2
+
+        indexInCombined = self.whereInCombined(mid, nums1, nums2, one_first)
+        if indexInCombined == index:
+            return nums1[mid]
+        if indexInCombined < index:
+            return self.findMedian(nums1, nums2, mid + 1, end, return_first, one_first)
+        return self.findMedian(nums1, nums2, begin, mid - 1, return_first, one_first)
 
 if __name__ == "__main__":
     s = Solution()
-
-    nums1 = [2, 2, 4, 4]
-    nums2 = [2, 2, 4, 4]
-    print(s.findMedianSortedArrays(nums1, nums2))
+    print(s.findMedianSortedArrays([1, 3], [2]))
