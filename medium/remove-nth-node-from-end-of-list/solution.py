@@ -12,7 +12,6 @@ class ListNode:
         return f"ListNode{{val: {self.val}, next: {self.next.__repr__()}}}"
 
 
-
 class Solution:
 
     def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
