@@ -19,14 +19,14 @@ class Solution:
         current = head
         next = current.next
 
-        for i in range(left - 1):
+        for _ in range(left - 1):
             prev = current
             current = next
             next = next.next
 
         current_tmp = current
 
-        for i in range(right - left):
+        for _ in range(right - left):
             tmp = next.next
             next.next = current
             current = next
