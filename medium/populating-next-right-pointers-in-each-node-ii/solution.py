@@ -10,7 +10,7 @@ class Node:
         return f"{self.val}"
 
 
-class Solution:
+class Solution1:
     def connect(self, root: Node) -> Node:
 
         # The idea is to do depth first search (pre-order traversal)
@@ -40,6 +40,33 @@ class Solution:
         return root
 
 
+class Solution2:
+    def connect(self, root: 'Node') -> 'Node':
+        queue = [(root, 0)]
+
+        lastLevel = 0
+        lastNodeInLevel = root
+        while len(queue) > 0:
+            node, level = queue.pop(0)
+
+            if node is None:
+                continue
+
+            if level == lastLevel and lastNodeInLevel != node:
+                lastNodeInLevel.next = node
+            else:
+                lastLevel = level
+
+            lastNodeInLevel = node
+
+            queue.append((node.left, level + 1))
+            queue.append((node.right, level + 1))
+
+        return root
+
+
+
+
 if __name__ == "__main__":
     root = Node(1)
     root.left = Node(2)
@@ -48,7 +75,7 @@ if __name__ == "__main__":
     root.left.right = Node(5)
     root.right.right = Node(7)
 
-    sol = Solution()
-    sol.connect(root)
+    sol = Solution2()
+    root = sol.connect(root)
 
     print(root)
