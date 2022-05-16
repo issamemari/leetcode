@@ -4,7 +4,8 @@ from typing import List
 class Solution:
     def shortestPathBinaryMatrix(self, grid: List[List[int]]) -> int:
 
-        if grid[0][0] == 1:
+        n = len(grid)
+        if grid[0][0] or grid[n - 1][n - 1]:
             return -1
 
         queue, visited = [((0, 0), 1)], set()
@@ -19,8 +20,6 @@ class Solution:
             (0, -1),
             (-1, -1),
         ]
-
-        n = len(grid)
 
         while queue:
 
