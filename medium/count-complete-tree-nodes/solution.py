@@ -36,7 +36,4 @@ class Solution:
         if isFull:
             return 2 ** depth - 1
 
-        countLeft = self.countNodes(root.left)
-        countRight = self.countNodes(root.right)
-
-        return 1 + countLeft + countRight
+        return 1 + self.countNodes(root.left) + self.countNodes(root.right)
