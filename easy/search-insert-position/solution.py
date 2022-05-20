@@ -14,7 +14,7 @@ class Solution:
             return mid
 
         if nums[mid] > target:
-            return self.binarySearchInsert(nums, target, begin, mid - 1)
+            return self.binarySearchInsert(nums, target, begin, mid)
 
         return self.binarySearchInsert(nums, target, mid + 1, end)
 
